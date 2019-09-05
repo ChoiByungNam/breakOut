@@ -90,7 +90,7 @@
           breakOut.paddleRight = true;
         } else if (e.which == 107 || e.which == 43) {
           if (breakOut.paddleWidth < canvas.width) breakOut.paddleWidth += 100;
-          console.log(breakOut.paddleWidth);
+          // console.log(breakOut.paddleWidth);
         }
       }
       keyUpHandler(e) {
@@ -191,7 +191,7 @@
           breakOut.dy = -breakOut.dy;
           // console.log('Y 충돌!');
         } else if (breakOut.y > canvas.height - breakOut.paddleHeight) {
-          console.log('paddle&ball 좌표:', breakOut.x, breakOut.paddleX + breakOut.paddleWidth);
+          // console.log('paddle&ball 좌표:', breakOut.x, breakOut.paddleX + breakOut.paddleWidth);
           if (breakOut.x > breakOut.paddleX && breakOut.x < breakOut.paddleX + breakOut.paddleWidth) {
             // console.log('야호!');
             breakOut.dy = -breakOut.dy;
