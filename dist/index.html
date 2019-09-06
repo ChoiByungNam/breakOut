@@ -172,12 +172,11 @@ function () {
       breakOut.drawScore();
       breakOut.drawLives();
       breakOut.drawEnd();
-      breakOut.timer = setTimeout(function () {
-        var nowTime = new Date(Date.now() - breakOut.startTime);
-        breakOut.min = breakOut.timeAddZero(nowTime.getMinutes());
-        breakOut.sec = breakOut.timeAddZero(nowTime.getSeconds());
-        breakOut.milisec = breakOut.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10)); // console.log(breakOut.min, breakOut.sec, breakOut.milisec);
-      });
+      var nowTime = new Date(Date.now() - breakOut.startTime);
+      breakOut.min = breakOut.timeAddZero(nowTime.getMinutes());
+      breakOut.sec = breakOut.timeAddZero(nowTime.getSeconds());
+      breakOut.milisec = breakOut.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10)); // console.log(breakOut.min, breakOut.sec, breakOut.milisec);
+
       /*
         충동감지 어렵다.
         공의 x 좌표는 벽돌의 x 좌표보다 커야 한다.
@@ -198,8 +197,6 @@ function () {
 
               if (breakOut.score === breakOut.brickColCount * breakOut.brickRowCount * 100) {
                 breakOut.start = true;
-                clearTimeout(breakOut.timer);
-                window.cancelAnimationFrame(breakOut.anim);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.font = '45px malgun gothic';
                 ctx.textAlign = 'center';
@@ -272,7 +269,7 @@ function () {
       var relativeX = e.clientX - canvas.offsetLeft;
 
       if (relativeX >= 0 && relativeX <= canvas.width) {
-        breakOut.paddleX = relativeX - breakOut.paddleWidth / 2; // 마우스 커서가 캔버스 좌우 넘어갔을 경우 제어
+        breakOut.paddleX = relativeX - breakOut.paddleWidth / 2; // 마우스 커서가 캔버스 밖으로 넘어갔을 경우 (paddle 넓이 전체 보여주기)
         // if (relativeX < breakOut.paddleWidth / 2) {
         //   breakOut.paddleX = 0;
         // } else if (relativeX > canvas.width - breakOut.paddleWidth / 2) {
