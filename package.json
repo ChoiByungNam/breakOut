@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "canvas study",
   "main": "index.js",
-  "homepage": "https://choibyungnam.github.io/break-out/dist",
+  "homepage": "https://choibyungnam.github.io/break-out",
   "scripts": {
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html"
@@ -18,8 +18,6 @@
     "parcel-bundler": "^1.12.3"
   },
   "dependencies": {
-    "fsevents": "^2.0.7",
-    "gh-pages": "^2.1.1",
-    "package": "^1.0.1"
+    "gh-pages": "^2.1.1"
   }
 }
