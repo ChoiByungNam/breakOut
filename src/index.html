@@ -104,8 +104,6 @@
         }
       }
       drawIntro(ctx) {
-        window.cancelAnimationFrame(breakOut.anim);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = '50px malgun gothic';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#000';
@@ -152,14 +150,12 @@
         breakOut.drawLives();
         breakOut.drawEnd();
 
-        breakOut.timer = setTimeout(() => {
-          const nowTime = new Date(Date.now() - breakOut.startTime);
+        const nowTime = new Date(Date.now() - breakOut.startTime);
 
-          breakOut.min = breakOut.timeAddZero(nowTime.getMinutes());
-          breakOut.sec = breakOut.timeAddZero(nowTime.getSeconds());
-          breakOut.milisec = breakOut.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10));
-          // console.log(breakOut.min, breakOut.sec, breakOut.milisec);
-        });
+        breakOut.min = breakOut.timeAddZero(nowTime.getMinutes());
+        breakOut.sec = breakOut.timeAddZero(nowTime.getSeconds());
+        breakOut.milisec = breakOut.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10));
+        // console.log(breakOut.min, breakOut.sec, breakOut.milisec);
 
         /*
           충동감지 어렵다.
@@ -180,8 +176,6 @@
                 // console.log('brickCurrntX,Y:', brickCurrent.x, brickCurrent.y, breakOut.score);
                 if (breakOut.score === (breakOut.brickColCount * breakOut.brickRowCount) * 100) {
                   breakOut.start = true;
-                  clearTimeout(breakOut.timer);
-                  window.cancelAnimationFrame(breakOut.anim);
                   ctx.clearRect(0, 0, canvas.width, canvas.height);
                   ctx.font = '45px malgun gothic';
                   ctx.textAlign = 'center';
@@ -250,7 +244,7 @@
 
         if (relativeX >= 0 && relativeX <= canvas.width) {
           breakOut.paddleX = relativeX - breakOut.paddleWidth / 2;
-          // 마우스 커서가 캔버스 좌우 넘어갔을 경우 제어
+          // 마우스 커서가 캔버스 밖으로 넘어갔을 경우 (paddle 넓이 전체 보여주기)
           // if (relativeX < breakOut.paddleWidth / 2) {
           //   breakOut.paddleX = 0;
           // } else if (relativeX > canvas.width - breakOut.paddleWidth / 2) {
