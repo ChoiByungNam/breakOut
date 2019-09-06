@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Break Out</title>
+  <style>html, body {
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      display: block;
+      margin: 30px auto 0;
+      background-color: #f8f8f8;
+      border: 1px solid #e0e0e0;
+    }
+    .control-group {
+      margin-top: 20px;
+      text-align: center;
+    }</style>
+</head>
+
+<body>
+  <canvas id="canvas" width="600px" height="450px"></canvas>
+
+  <div class="control-group">
+    <button type="button" class="btn-reload" data-action="reload">RELOAD</button>
+  </div>
+
+  <ul>
+    <li><del>공 그리기</del></li>
+    <li><del>공 이동</del></li>
+    <li><del>Paddle 그리기</del></li>
+    <li><del>Paddle 키보드&amp;마우스 이동</del></li>
+    <li><del>벽돌 그리기</del></li>
+    <li><strong><del>벽돌 충돌감지&amp;제거(어려움)</del></strong></li>
+    <li><del>GameOver&amp;Score&amp;Lives</del></li>
+    <li><del>Timer</del></li>
+    <li>공 모션</li>
+  </ul>
+
+  <script src="https://threejs.org/build/three.js"></script>
+  <script>function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+
+var BreakOut =
+/*#__PURE__*/
+function () {
+  function BreakOut() {
+    _classCallCheck(this, BreakOut);
+
+    this.ballRadian = 8;
+    this.x = Math.floor(Math.random() * (canvas.width - this.ballRadian)) + this.ballRadian;
+    this.y = canvas.height - this.ballRadian - 2;
+    this.dx = 4;
+    this.dy = -4;
+    this.paddleWidth = 90;
+    this.paddleHeight = 5;
+    this.paddleLeft = false;
+    this.paddleRight = false;
+    this.paddleX = (canvas.width - this.paddleWidth) / 2;
+    this.paddleCount = 7;
+    this.bricks = [];
+    this.brickWidth = 70;
+    this.brickHeight = 25;
+    this.brickPadding = 10;
+    this.brickOffsetTop = 50;
+    this.brickOffsetLeft = 25;
+    this.brickColCount = 5;
+    this.brickRowCount = 7;
+    this.score = 0;
+    this.lives = 1;
+    this.startTime = Date.now();
+    this.min = 0;
+    this.sec = 0;
+    this.milisec = 0;
+
+    for (var i = 0; i < this.brickRowCount; i++) {
+      this.bricks[i] = [];
+
+      for (var k = 0; k < this.brickColCount; k++) {
+        this.bricks[i][k] = {
+          x: 0,
+          y: 0,
+          status: 1
+        };
+      }
+    }
+  }
+
+  _createClass(BreakOut, [{
+    key: "keyDownHandler",
+    value: function keyDownHandler(e) {
+      if (e.which == 37) {
+        breakOut.paddleLeft = true;
+      } else if (e.which == 39) {
+        breakOut.paddleRight = true;
+      } else if (e.which == 107 || e.which == 43) {
+        if (breakOut.paddleWidth < canvas.width) breakOut.paddleWidth += 100; // console.log(breakOut.paddleWidth);
+      }
+    }
+  }, {
+    key: "keyUpHandler",
+    value: function keyUpHandler(e) {
+      if (e.which == 37) {
+        breakOut.paddleLeft = false;
+      } else if (e.which == 39) {
+        breakOut.paddleRight = false;
+      }
+    }
+  }, {
+    key: "drawBricks",
+    value: function drawBricks() {
+      for (var i = 0; i < breakOut.brickRowCount; i++) {
+        for (var k = 0; k < breakOut.brickColCount; k++) {
+          if (breakOut.bricks[i][k].status === 1) {
+            // status 가 1일 경우에만 벽돌 그리기
+            var brickX = i * (breakOut.brickWidth + breakOut.brickPadding) + breakOut.brickOffsetLeft;
+            var brickY = k * (breakOut.brickHeight + breakOut.brickPadding) + breakOut.brickOffsetTop;
+            breakOut.bricks[i][k].x = brickX;
+            breakOut.bricks[i][k].y = brickY;
+            ctx.beginPath();
+            ctx.rect(brickX, brickY, breakOut.brickWidth, breakOut.brickHeight);
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fill();
+          }
+        }
+      }
+    }
+  }, {
+    key: "drawBall",
+    value: function drawBall(ctx) {
+      ctx.beginPath();
+      ctx.fillStyle = '#9c9c9c';
+      ctx.arc(breakOut.x, breakOut.y, breakOut.ballRadian, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }, {
+    key: "drawPaddle",
+    value: function drawPaddle() {
+      ctx.beginPath();
+      ctx.fillStyle = '#c5c5c5';
+      ctx.fillRect(breakOut.paddleX, canvas.height - breakOut.paddleHeight, breakOut.paddleWidth, breakOut.paddleHeight);
+      ctx.fill();
+    }
+  }, {
+    key: "draw",
+    value: function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      breakOut.drawBall(ctx);
+      breakOut.drawPaddle(ctx);
+      breakOut.drawBricks(ctx);
+      breakOut.drawScore();
+      breakOut.drawLives();
+      breakOut.drawEnd();
+      breakOut.timer = setTimeout(function () {
+        var nowTime = new Date(Date.now() - breakOut.startTime);
+        breakOut.min = breakOut.timeAddZero(nowTime.getMinutes());
+        breakOut.sec = breakOut.timeAddZero(nowTime.getSeconds());
+        breakOut.milisec = breakOut.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10)); // console.log(breakOut.min, breakOut.sec, breakOut.milisec);
+      });
+      /*
+        충동감지 어렵다.
+        공의 x 좌표는 벽돌의 x 좌표보다 커야 한다.
+        공의 x 좌표는 벽돌의 x 좌표 + 가로 길이보다 작아야 한다.
+        공의 y 좌표는 벽돌의 y 좌표보다 커야 한다.
+        공의 y 좌표는 벽돌의 y 좌표 + 높이보다 작아야 한다.
+      */
+
+      for (var i = 0; i < breakOut.brickRowCount; i++) {
+        for (var k = 0; k < breakOut.brickColCount; k++) {
+          var brickCurrent = breakOut.bricks[i][k];
+
+          if (brickCurrent.status === 1) {
+            if (breakOut.x > brickCurrent.x - breakOut.ballRadian && breakOut.x < brickCurrent.x + breakOut.brickWidth + breakOut.ballRadian && breakOut.y > brickCurrent.y - breakOut.ballRadian && breakOut.y < brickCurrent.y + breakOut.brickHeight + breakOut.ballRadian) {
+              breakOut.dy = -breakOut.dy;
+              brickCurrent.status = 0;
+              breakOut.score += 100; // console.log('brickCurrntX,Y:', brickCurrent.x, brickCurrent.y, breakOut.score);
+
+              if (breakOut.score === breakOut.brickColCount * breakOut.brickRowCount * 100) {
+                clearTimeout(breakOut.timer);
+                window.cancelAnimationFrame(breakOut.anim);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '45px malgun gothic';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#000';
+                ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.font = '25px malgun gothic';
+                ctx.fillText("".concat(breakOut.min, ":").concat(breakOut.sec, ":").concat(breakOut.milisec), canvas.width / 2, canvas.height / 2 + 20);
+                return false;
+              }
+            }
+          }
+        }
+      }
+
+      if (breakOut.x > canvas.width - breakOut.ballRadian || breakOut.x < breakOut.ballRadian) {
+        // Ball 좌우
+        breakOut.dx = -breakOut.dx; // console.log('X 충돌!');
+      }
+
+      if (breakOut.y < breakOut.ballRadian) {
+        // Ball 상하
+        breakOut.dy = -breakOut.dy; // console.log('Y 충돌!');
+      } else if (breakOut.y > canvas.height - breakOut.paddleHeight) {
+        // console.log('paddle&ball 좌표:', breakOut.x, breakOut.paddleX + breakOut.paddleWidth);
+        if (breakOut.x > breakOut.paddleX && breakOut.x < breakOut.paddleX + breakOut.paddleWidth) {
+          // console.log('야호!');
+          breakOut.dy = -breakOut.dy;
+        } else {
+          breakOut.lives--;
+
+          if (!breakOut.lives) {
+            // console.log('GAME OVER!');
+            breakOut.gameOver();
+            return false;
+          } else {
+            breakOut.x = canvas.width / 2;
+            breakOut.y = canvas.height - breakOut.ballRadian;
+            breakOut.dx = 4;
+            breakOut.dy = -4;
+            breakOut.paddleX = (canvas.width - breakOut.paddleWidth) / 2;
+          }
+        }
+      }
+
+      if (breakOut.paddleRight) {
+        // Paddle Keyboard
+        breakOut.paddleX += breakOut.paddleCount;
+
+        if (breakOut.paddleX > canvas.width - breakOut.paddleWidth) {
+          // console.log(canvas.width - breakOut.paddleWidth);
+          breakOut.paddleX = canvas.width - breakOut.paddleWidth;
+        }
+      } else if (breakOut.paddleLeft) {
+        breakOut.paddleX -= breakOut.paddleCount;
+
+        if (breakOut.paddleX < 0) {
+          breakOut.paddleX = 0;
+        }
+      }
+
+      breakOut.x += breakOut.dx;
+      breakOut.y += breakOut.dy; // console.log(breakOut.x, breakOut.y);
+
+      breakOut.anim = window.requestAnimationFrame(breakOut.draw);
+    }
+  }, {
+    key: "mouseMoveHandler",
+    value: function mouseMoveHandler(e) {
+      var relativeX = e.clientX - canvas.offsetLeft;
+
+      if (relativeX >= 0 && relativeX <= canvas.width) {
+        breakOut.paddleX = relativeX - breakOut.paddleWidth / 2; // 마우스 커서가 캔버스 좌우 넘어갔을 경우 제어
+        // if (relativeX < breakOut.paddleWidth / 2) {
+        //   breakOut.paddleX = 0;
+        // } else if (relativeX > canvas.width - breakOut.paddleWidth / 2) {
+        //   breakOut.paddleX = canvas.width - breakOut.paddleWidth;
+        // }
+      }
+    }
+  }, {
+    key: "drawScore",
+    value: function drawScore() {
+      ctx.font = '20px malgun gothic';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#000';
+      ctx.fillText("Score : ".concat(breakOut.score), breakOut.brickOffsetLeft, 30);
+    }
+  }, {
+    key: "drawLives",
+    value: function drawLives() {
+      ctx.font = '20px malgun gothic';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#000';
+      ctx.fillText("Lives : ".concat(breakOut.lives), canvas.width - breakOut.brickOffsetLeft, 30);
+    }
+  }, {
+    key: "drawEnd",
+    value: function drawEnd() {
+      ctx.font = '20px malgun gothic';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#000';
+      ctx.fillText("Time : ".concat(breakOut.min, ":").concat(breakOut.sec, ":").concat(breakOut.milisec), canvas.width / 2, 30);
+    }
+  }, {
+    key: "timeAddZero",
+    value: function timeAddZero(num) {
+      return num < 10 ? '0' + num : '' + num;
+    }
+  }, {
+    key: "gameOver",
+    value: function gameOver() {
+      window.cancelAnimationFrame(breakOut.anim);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '50px malgun gothic';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#000';
+      ctx.fillText('실력이 부족하구만~', canvas.width / 2, canvas.height / 2);
+    }
+  }, {
+    key: "reload",
+    value: function reload() {
+      document.location.reload();
+    }
+  }]);
+
+  return BreakOut;
+}();
+
+var breakOut = new BreakOut();
+breakOut.draw(ctx);
+document.addEventListener('keydown', breakOut.keyDownHandler, false);
+document.addEventListener('keyup', breakOut.keyUpHandler, false);
+document.addEventListener('mousemove', breakOut.mouseMoveHandler, false);
+document.addEventListener('click', function (e) {
+  var target = e.target;
+  var actionName = !!target.dataset && target.dataset.action;
+
+  if (actionName === 'reload') {
+    breakOut.reload();
+  }
+});</script>
+</body>
+</html>
