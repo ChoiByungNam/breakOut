@@ -27,7 +27,8 @@
   <canvas id="canvas" width="600px" height="450px"></canvas>
 
   <div class="control-group">
-    <button type="button" class="btn-reload" data-action="reload">RELOAD</button>
+    <button type="button" id="btnControl" data-action="start">START</button>
+    <button type="button" data-action="reload">RELOAD</button>
   </div>
 
   <ul>
@@ -47,11 +48,12 @@
     const ctx = canvas.getContext('2d');
 
     class BreakOut {
+      start = false;
       ballRadian = 8;
       x = Math.floor(Math.random() * (canvas.width - this.ballRadian)) + this.ballRadian;
       y = canvas.height - this.ballRadian - 2;
-      dx = 4;
-      dy = -4;
+      dx = 6;
+      dy = -6;
       paddleWidth = 90;
       paddleHeight = 5;
       paddleLeft = false;
@@ -100,6 +102,16 @@
           breakOut.paddleRight = false;
         }
       }
+      drawIntro(ctx) {
+        window.cancelAnimationFrame(breakOut.anim);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '50px malgun gothic';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#000';
+        ctx.fillText('Break Out', canvas.width / 2, canvas.height / 2 - 20);
+        ctx.font = '25px malgun gothic';
+        ctx.fillText('아래 [START] 버튼을 클릭해주세요!', canvas.width / 2, canvas.height / 2 + 20);
+      }
       drawBricks() {
         for (let i = 0; i < breakOut.brickRowCount; i++) {
           for (let k = 0; k < breakOut.brickColCount; k++) {
@@ -132,6 +144,7 @@
       }
       draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // breakOut.gameStart();
         breakOut.drawBall(ctx);
         breakOut.drawPaddle(ctx);
         breakOut.drawBricks(ctx);
@@ -166,6 +179,7 @@
                 breakOut.score += 100;
                 // console.log('brickCurrntX,Y:', brickCurrent.x, brickCurrent.y, breakOut.score);
                 if (breakOut.score === (breakOut.brickColCount * breakOut.brickRowCount) * 100) {
+                  breakOut.start = true;
                   clearTimeout(breakOut.timer);
                   window.cancelAnimationFrame(breakOut.anim);
                   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -175,6 +189,7 @@
                   ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
                   ctx.font = '25px malgun gothic';
                   ctx.fillText(`${breakOut.min}:${breakOut.sec}:${breakOut.milisec}`, canvas.width / 2, canvas.height / 2 + 20);
+                  breakOut.gameStart();
                   return false;
                 }
               }
@@ -204,8 +219,8 @@
             } else {
               breakOut.x = canvas.width / 2;
               breakOut.y = canvas.height - breakOut.ballRadian;
-              breakOut.dx = 4;
-              breakOut.dy = -4;
+              breakOut.dx = 6;
+              breakOut.dy = -6;
               breakOut.paddleX = (canvas.width - breakOut.paddleWidth) / 2;
             }
           }
@@ -264,21 +279,32 @@
       timeAddZero(num) {
         return (num < 10 ? '0'+num : ''+num);
       }
+      gameStart() {
+        if (!breakOut.start) {
+          breakOut.start = false;
+          window.cancelAnimationFrame(breakOut.anim);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          breakOut = new BreakOut();
+          breakOut.draw(ctx);
+        }
+      }
       gameOver() {
+        breakOut.start = true;
         window.cancelAnimationFrame(breakOut.anim);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = '50px malgun gothic';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#000';
         ctx.fillText('실력이 부족하구만~', canvas.width / 2, canvas.height / 2);
+        breakOut.gameStart();
       }
       reload() {
         document.location.reload();
       }
     }
 
-    const breakOut = new BreakOut();
-    breakOut.draw(ctx);
+    let breakOut = new BreakOut();
+    breakOut.drawIntro(ctx);
 
     document.addEventListener('keydown', breakOut.keyDownHandler, false);
     document.addEventListener('keyup', breakOut.keyUpHandler, false);
@@ -289,6 +315,9 @@
 
       if (actionName === 'reload') {
         breakOut.reload();
+      } else if (actionName === 'start') {
+        breakOut.start = false;
+        breakOut.gameStart();
       }
     });
   </script>

@@ -25,7 +25,8 @@
   <canvas id="canvas" width="600px" height="450px"></canvas>
 
   <div class="control-group">
-    <button type="button" class="btn-reload" data-action="reload">RELOAD</button>
+    <button type="button" id="btnControl" data-action="start">START</button>
+    <button type="button" data-action="reload">RELOAD</button>
   </div>
 
   <ul>
@@ -40,18 +41,12 @@
     <li>공 모션</li>
   </ul>
 
-  <script src="https://threejs.org/build/three.js"></script>
   <script>function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
@@ -61,11 +56,12 @@ function () {
   function BreakOut() {
     _classCallCheck(this, BreakOut);
 
+    this.start = false;
     this.ballRadian = 8;
     this.x = Math.floor(Math.random() * (canvas.width - this.ballRadian)) + this.ballRadian;
     this.y = canvas.height - this.ballRadian - 2;
-    this.dx = 4;
-    this.dy = -4;
+    this.dx = 6;
+    this.dy = -6;
     this.paddleWidth = 90;
     this.paddleHeight = 5;
     this.paddleLeft = false;
@@ -121,6 +117,18 @@ function () {
       }
     }
   }, {
+    key: "drawIntro",
+    value: function drawIntro(ctx) {
+      window.cancelAnimationFrame(breakOut.anim);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '50px malgun gothic';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#000';
+      ctx.fillText('Break Out', canvas.width / 2, canvas.height / 2 - 20);
+      ctx.font = '25px malgun gothic';
+      ctx.fillText('아래 [START] 버튼을 클릭해주세요!', canvas.width / 2, canvas.height / 2 + 20);
+    }
+  }, {
     key: "drawBricks",
     value: function drawBricks() {
       for (var i = 0; i < breakOut.brickRowCount; i++) {
@@ -158,7 +166,8 @@ function () {
   }, {
     key: "draw",
     value: function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // breakOut.gameStart();
+
       breakOut.drawBall(ctx);
       breakOut.drawPaddle(ctx);
       breakOut.drawBricks(ctx);
@@ -190,6 +199,7 @@ function () {
               breakOut.score += 100; // console.log('brickCurrntX,Y:', brickCurrent.x, brickCurrent.y, breakOut.score);
 
               if (breakOut.score === breakOut.brickColCount * breakOut.brickRowCount * 100) {
+                breakOut.start = true;
                 clearTimeout(breakOut.timer);
                 window.cancelAnimationFrame(breakOut.anim);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -199,6 +209,7 @@ function () {
                 ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
                 ctx.font = '25px malgun gothic';
                 ctx.fillText("".concat(breakOut.min, ":").concat(breakOut.sec, ":").concat(breakOut.milisec), canvas.width / 2, canvas.height / 2 + 20);
+                breakOut.gameStart();
                 return false;
               }
             }
@@ -229,8 +240,8 @@ function () {
           } else {
             breakOut.x = canvas.width / 2;
             breakOut.y = canvas.height - breakOut.ballRadian;
-            breakOut.dx = 4;
-            breakOut.dy = -4;
+            breakOut.dx = 6;
+            breakOut.dy = -6;
             breakOut.paddleX = (canvas.width - breakOut.paddleWidth) / 2;
           }
         }
@@ -301,14 +312,27 @@ function () {
       return num < 10 ? '0' + num : '' + num;
     }
   }, {
+    key: "gameStart",
+    value: function gameStart() {
+      if (!breakOut.start) {
+        breakOut.start = false;
+        window.cancelAnimationFrame(breakOut.anim);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        breakOut = new BreakOut();
+        breakOut.draw(ctx);
+      }
+    }
+  }, {
     key: "gameOver",
     value: function gameOver() {
+      breakOut.start = true;
       window.cancelAnimationFrame(breakOut.anim);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.font = '50px malgun gothic';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#000';
       ctx.fillText('실력이 부족하구만~', canvas.width / 2, canvas.height / 2);
+      breakOut.gameStart();
     }
   }, {
     key: "reload",
@@ -321,7 +345,7 @@ function () {
 }();
 
 var breakOut = new BreakOut();
-breakOut.draw(ctx);
+breakOut.drawIntro(ctx);
 document.addEventListener('keydown', breakOut.keyDownHandler, false);
 document.addEventListener('keyup', breakOut.keyUpHandler, false);
 document.addEventListener('mousemove', breakOut.mouseMoveHandler, false);
@@ -331,6 +355,9 @@ document.addEventListener('click', function (e) {
 
   if (actionName === 'reload') {
     breakOut.reload();
+  } else if (actionName === 'start') {
+    breakOut.start = false;
+    breakOut.gameStart();
   }
 });</script>
 </body>
