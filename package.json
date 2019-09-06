@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "canvas study",
   "main": "index.js",
-  "homepage": "https://choibyungnam.github.io/break-out",
+  "homepage": "https://choibyungnam.github.io/break-out/",
   "scripts": {
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html"
