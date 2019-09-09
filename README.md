@@ -29,3 +29,9 @@ $ npm start
 ## 디렉토리
 
 - 모든 작업은 `src` 디렉토리 안에서 이루어짐
+
+## Pages
+
+```
+https://choibyungnam.github.io/break-out/src/
+```
