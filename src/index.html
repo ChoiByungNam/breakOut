@@ -14,8 +14,8 @@
     canvas {
       display: block;
       margin: 30px auto 0;
-      background-color: #f8f8f8;
-      border: 1px solid #e0e0e0;
+      background-color: #ede7db;
+      border: 1px solid #ecdbba;
     }
     .control-group {
       margin-top: 20px;
@@ -25,7 +25,7 @@
 </head>
 
 <body>
-  <canvas id="canvas" width="600px" height="450px"></canvas>
+  <canvas id="canvas" width="586px" height="450px"></canvas>
 
   <div class="control-group">
     <button type="button" id="btnControl" data-action="start">START</button>
@@ -41,6 +41,8 @@
     <li><strong><del>벽돌 충돌감지&amp;제거(어려움)</del></strong></li>
     <li><del>GameOver&amp;Score&amp;Lives</del></li>
     <li><del>Timer</del></li>
+    <li><del>벽돌 타입 추가</del></li>
+    <li>아이템 추가</li>
     <li>공 모션</li>
   </ul>
 
@@ -53,8 +55,8 @@
       ballRadian = 8;
       x = Math.floor(Math.random() * (canvas.width - this.ballRadian)) + this.ballRadian;
       y = canvas.height - this.ballRadian - 2;
-      dx = 6;
-      dy = -6;
+      dx = 4;
+      dy = -4;
       paddleWidth = 90;
       paddleHeight = 5;
       paddleLeft = false;
@@ -64,7 +66,7 @@
       bricks = [];
       brickWidth = 70;
       brickHeight = 25;
-      brickPadding = 10;
+      brickPadding = 8;
       brickOffsetTop = 50;
       brickOffsetLeft = 25;
       brickColCount = 5;
@@ -81,7 +83,9 @@
         for (let i = 0; i < this.brickRowCount; i++) {
           this.bricks[i] = [];
           for (let k = 0; k < this.brickColCount; k++) {
-            this.bricks[i][k] = {x: 0, y: 0, status: 1};
+            let randomBricks = Math.floor(Math.random() * 2) + 1;
+
+            this.bricks[i][k] = {x: 0, y: 0, status: randomBricks};
           }
         }
       }
@@ -114,16 +118,21 @@
       drawBricks() {
         for (let i = 0; i < breakOut.brickRowCount; i++) {
           for (let k = 0; k < breakOut.brickColCount; k++) {
+            let brickX = (i * (breakOut.brickWidth + breakOut.brickPadding)) + breakOut.brickOffsetLeft;
+            let brickY = (k * (breakOut.brickHeight + breakOut.brickPadding)) + breakOut.brickOffsetTop;
+
+            breakOut.bricks[i][k].x = brickX;
+            breakOut.bricks[i][k].y = brickY;
+
             if (breakOut.bricks[i][k].status === 1) { // status 가 1일 경우에만 벽돌 그리기
-              let brickX = (i * (breakOut.brickWidth + breakOut.brickPadding)) + breakOut.brickOffsetLeft;
-              let brickY = (k * (breakOut.brickHeight + breakOut.brickPadding)) + breakOut.brickOffsetTop;
-
-              breakOut.bricks[i][k].x = brickX;
-              breakOut.bricks[i][k].y = brickY;
-
               ctx.beginPath();
               ctx.rect(brickX, brickY, breakOut.brickWidth, breakOut.brickHeight);
-              ctx.fillStyle = '#e0e0e0';
+              ctx.fillStyle = '#c64e2b';
+              ctx.fill();
+            } else if (breakOut.bricks[i][k].status === 2) {
+              ctx.beginPath();
+              ctx.rect(brickX, brickY, breakOut.brickWidth, breakOut.brickHeight);
+              ctx.fillStyle = '#aa3c23';
               ctx.fill();
             }
           }
@@ -131,13 +140,13 @@
       }
       drawBall(ctx) {
         ctx.beginPath();
-        ctx.fillStyle = '#9c9c9c';
+        ctx.fillStyle = '#e7ad00';
         ctx.arc(breakOut.x, breakOut.y, breakOut.ballRadian, 0, Math.PI * 2);
         ctx.fill();
       }
       drawPaddle() {
         ctx.beginPath();
-        ctx.fillStyle = '#c5c5c5';
+        ctx.fillStyle = '#ab8000';
         ctx.fillRect(breakOut.paddleX, canvas.height - breakOut.paddleHeight, breakOut.paddleWidth, breakOut.paddleHeight);
         ctx.fill();
       }
@@ -168,12 +177,13 @@
           for (let k = 0; k < breakOut.brickColCount; k++) {
             let brickCurrent = breakOut.bricks[i][k];
 
-            if (brickCurrent.status === 1) {
+            if (brickCurrent.status === 1 || brickCurrent.status === 2) {
+              let statusNumber = brickCurrent.status === 2 ? 1 : 0;
+
               if (breakOut.x > brickCurrent.x - breakOut.ballRadian && breakOut.x < brickCurrent.x + breakOut.brickWidth + breakOut.ballRadian && breakOut.y > brickCurrent.y - breakOut.ballRadian && breakOut.y < brickCurrent.y + breakOut.brickHeight + breakOut.ballRadian) {
                 breakOut.dy = -breakOut.dy;
-                brickCurrent.status = 0;
+                brickCurrent.status = statusNumber;
                 breakOut.score += 100;
-                // console.log('brickCurrntX,Y:', brickCurrent.x, brickCurrent.y, breakOut.score);
                 if (breakOut.score === (breakOut.brickColCount * breakOut.brickRowCount) * 100) {
                   breakOut.start = true;
                   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -213,8 +223,8 @@
             } else {
               breakOut.x = canvas.width / 2;
               breakOut.y = canvas.height - breakOut.ballRadian;
-              breakOut.dx = 6;
-              breakOut.dy = -6;
+              breakOut.dx = 4;
+              breakOut.dy = -4;
               breakOut.paddleX = (canvas.width - breakOut.paddleWidth) / 2;
             }
           }
