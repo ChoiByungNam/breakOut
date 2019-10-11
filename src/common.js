@@ -106,11 +106,16 @@ class BreakOut {
           this.ctx.fillStyle = '#c64e2b';
           this.ctx.fill();
         } else if (this.bricks[i][k].status === 2) {
+          let statusType = _this.bricks.map(col => col.filter(block => block.status === 2));
+          let statusTypeNum = 0;
+
+          statusType.forEach(arr => {
+            statusTypeNum += arr.length;
+          });
           this.ctx.beginPath();
           this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
           this.ctx.fillStyle = '#aa3c23';
           this.ctx.fill();
-          console.log(this.bricks[i][k].status);
         }
       }
     }
@@ -156,11 +161,19 @@ class BreakOut {
 
         if (brickCurrent.status === 1 || brickCurrent.status === 2) {
           let statusNumber = brickCurrent.status === 2 ? 1 : 0;
+          let statusType = _this.bricks.map(col => col.filter(block => block.status === 2));
+          let statusTypeNum = 0;
+
+          statusType.forEach(arr => {
+            statusTypeNum += arr.length;
+          });
 
           if (_this.x > brickCurrent.x - _this.ballRadian && _this.x < brickCurrent.x + _this.brickWidth + _this.ballRadian && _this.y > brickCurrent.y - _this.ballRadian && _this.y < brickCurrent.y + _this.brickHeight + _this.ballRadian) {
-            _this.dy = -_this.dy;
             brickCurrent.status = statusNumber;
+            _this.dy = -_this.dy;
             _this.score += 100;
+            // console.log(statusTypeNum);
+
             if (_this.score === (_this.brickColCount * _this.brickRowCount) * 100) {
               _this.start = true;
               _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
