@@ -153,7 +153,7 @@ function () {
     this.brickColCount = 5;
     this.brickRowCount = 7;
     this.score = 0;
-    this.lives = 1;
+    this.lives = 2;
     this.startTime = Date.now();
     this.min = 0;
     this.sec = 0;
@@ -267,15 +267,10 @@ function () {
           this.bricks[i][k].x = brickX;
           this.bricks[i][k].y = brickY; // status === 1 한방 벽돌 생성, status === 2 두방 벽돌 생성
 
-          if (this.bricks[i][k].status === 1) {
+          if (this.bricks[i][k].status) {
             this.ctx.beginPath();
             this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
-            this.ctx.fillStyle = '#c64e2b';
-            this.ctx.fill();
-          } else if (this.bricks[i][k].status === 2) {
-            this.ctx.beginPath();
-            this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
-            this.ctx.fillStyle = '#aa3c23';
+            this.bricks[i][k].status === 1 ? this.ctx.fillStyle = '#c64e2b' : this.ctx.fillStyle = '#aa3c23';
             this.ctx.fill();
           }
         }
@@ -526,7 +521,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52691" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54055" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
