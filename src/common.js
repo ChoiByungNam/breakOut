@@ -20,13 +20,14 @@ class BreakOut {
   brickColCount = 5;
   brickRowCount = 7;
   score = 0;
-  lives = 1;
+  lives = 2;
   startTime = Date.now();
   min = 0;
   sec = 0;
   milisec = 0;
   anim;
   statusTypeCount;
+  _this;
 
   drawTitle = '50px malgun gothic';
   drawText = '25px malgun gothic';
@@ -116,15 +117,10 @@ class BreakOut {
         this.bricks[i][k].y = brickY;
 
         // status === 1 한방 벽돌 생성, status === 2 두방 벽돌 생성
-        if (this.bricks[i][k].status === 1) {
+        if (this.bricks[i][k].status) {
           this.ctx.beginPath();
           this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
-          this.ctx.fillStyle = '#c64e2b';
-          this.ctx.fill();
-        } else if (this.bricks[i][k].status === 2) {
-          this.ctx.beginPath();
-          this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
-          this.ctx.fillStyle = '#aa3c23';
+          this.bricks[i][k].status === 1 ? this.ctx.fillStyle = '#c64e2b' : this.ctx.fillStyle = '#aa3c23';
           this.ctx.fill();
         }
       }
@@ -180,7 +176,7 @@ class BreakOut {
             _this.score += 100;
 
             if (_this.score === (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100) {
-              document.getElementById('btnControl').style.display =  'none';
+              document.getElementById('btnControl').style.display = 'none';
               _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
               _this.ctx.font = '45px malgun gothic';
               _this.ctx.textAlign = _this.drawAlign;
@@ -294,7 +290,7 @@ class BreakOut {
     }
   }
   gameOver() {
-    document.getElementById('btnControl').style.display =  'none';
+    document.getElementById('btnControl').style.display = 'none';
     window.cancelAnimationFrame(this.anim);
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.ctx.font = this.drawTitle;
