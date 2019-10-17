@@ -158,8 +158,13 @@ function () {
     this.min = 0;
     this.sec = 0;
     this.milisec = 0;
+    this.drawTitle = '50px malgun gothic';
+    this.drawText = '25px malgun gothic';
+    this.drawAlign = 'center';
+    this.drawColor = '#000';
     _this = this;
     this.ctx = canvas.getContext('2d');
+    this.init();
     this.drawIntro();
     document.addEventListener('click', function (e) {
       var target = e.target;
@@ -168,8 +173,6 @@ function () {
       if (actionName === 'reload') {
         _this2.reload();
       } else if (actionName === 'start') {
-        _this2.start = false;
-
         _this2.gameStart();
       }
     });
@@ -178,6 +181,8 @@ function () {
   _createClass(BreakOut, [{
     key: "init",
     value: function init() {
+      var _this3 = this;
+
       // bricks 기본 설정
       for (var i = 0; i < this.brickRowCount; i++) {
         this.bricks[i] = [];
@@ -189,10 +194,23 @@ function () {
             y: 0,
             status: randomBricks
           };
+
+          var statusType = _this.bricks.map(function (col) {
+            return col.filter(function (block) {
+              return block.status === 2;
+            });
+          });
+
+          this.statusTypeCount = 0;
+          statusType.forEach(function (arr) {
+            _this3.statusTypeCount += arr.length;
+          }); // console.log('개수:' + this.statusTypeCount, '뿌려진값:' + randomBricks);
         }
       }
 
-      this.draw();
+      this.keyDown();
+      this.keyUp();
+      this.mouseMove();
     }
   }, {
     key: "keyDown",
@@ -232,11 +250,11 @@ function () {
   }, {
     key: "drawIntro",
     value: function drawIntro() {
-      this.ctx.font = '50px malgun gothic';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillStyle = '#000';
+      this.ctx.font = this.drawTitle;
+      this.ctx.textAlign = this.drawAlign;
+      this.ctx.fillStyle = this.drawColor;
       this.ctx.fillText('Break Out', canvas.width / 2, canvas.height / 2 - 20);
-      this.ctx.font = '25px malgun gothic';
+      this.ctx.font = this.drawText;
       this.ctx.fillText('아래 [START] 버튼을 클릭해주세요!', canvas.width / 2, canvas.height / 2 + 20);
     }
   }, {
@@ -255,16 +273,6 @@ function () {
             this.ctx.fillStyle = '#c64e2b';
             this.ctx.fill();
           } else if (this.bricks[i][k].status === 2) {
-            var statusType = _this.bricks.map(function (col) {
-              return col.filter(function (block) {
-                return block.status === 2;
-              });
-            });
-
-            var statusTypeNum = 0;
-            statusType.forEach(function (arr) {
-              statusTypeNum += arr.length;
-            });
             this.ctx.beginPath();
             this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
             this.ctx.fillStyle = '#aa3c23';
@@ -311,6 +319,7 @@ function () {
       _this.sec = _this.timeAddZero(nowTime.getSeconds());
       _this.milisec = _this.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10)); // console.log(_this.min, _this.sec, _this.milisec);
 
+      _this.start = true;
       /*
         bricks 충돌감지 제어
         충동감지 어렵다.
@@ -325,41 +334,32 @@ function () {
           var brickCurrent = _this.bricks[i][k];
 
           if (brickCurrent.status === 1 || brickCurrent.status === 2) {
-            var statusNumber = brickCurrent.status === 2 ? 1 : 0;
-
-            var statusType = _this.bricks.map(function (col) {
-              return col.filter(function (block) {
-                return block.status === 2;
-              });
-            });
-
-            var statusTypeNum = 0;
-            statusType.forEach(function (arr) {
-              statusTypeNum += arr.length;
-            });
+            var statusNum = brickCurrent.status === 2 ? 1 : 0;
 
             if (_this.x > brickCurrent.x - _this.ballRadian && _this.x < brickCurrent.x + _this.brickWidth + _this.ballRadian && _this.y > brickCurrent.y - _this.ballRadian && _this.y < brickCurrent.y + _this.brickHeight + _this.ballRadian) {
-              brickCurrent.status = statusNumber;
+              brickCurrent.status = statusNum;
               _this.dy = -_this.dy;
-              _this.score += 100; // console.log(statusTypeNum);
+              _this.score += 100;
 
-              if (_this.score === _this.brickColCount * _this.brickRowCount * 100) {
-                _this.start = true;
+              if (_this.score === (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100) {
+                document.getElementById('btnControl').style.display = 'none';
 
                 _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 _this.ctx.font = '45px malgun gothic';
-                _this.ctx.textAlign = 'center';
-                _this.ctx.fillStyle = '#000';
+                _this.ctx.textAlign = _this.drawAlign;
+                _this.ctx.fillStyle = _this.drawColor;
 
                 _this.ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
 
-                _this.ctx.font = '25px malgun gothic';
+                _this.ctx.font = _this.drawText;
 
                 _this.ctx.fillText("".concat(_this.min, ":").concat(_this.sec, ":").concat(_this.milisec), canvas.width / 2, canvas.height / 2 + 20);
 
                 return false;
               }
+
+              console.log('scroe: ' + _this.score, 'total: ' + (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100);
             }
           }
         }
@@ -437,7 +437,7 @@ function () {
     value: function drawScore() {
       this.ctx.font = '20px malgun gothic';
       this.ctx.textAlign = 'left';
-      this.ctx.fillStyle = '#000';
+      this.ctx.fillStyle = this.drawColor;
       this.ctx.fillText("Score : ".concat(this.score), this.brickOffsetLeft, 30);
     }
   }, {
@@ -445,15 +445,15 @@ function () {
     value: function drawLives() {
       this.ctx.font = '20px malgun gothic';
       this.ctx.textAlign = 'right';
-      this.ctx.fillStyle = '#000';
+      this.ctx.fillStyle = this.drawColor;
       this.ctx.fillText("Lives : ".concat(this.lives), canvas.width - this.brickOffsetLeft, 30);
     }
   }, {
     key: "drawEnd",
     value: function drawEnd() {
       this.ctx.font = '20px malgun gothic';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillStyle = '#000';
+      this.ctx.textAlign = this.drawAlign;
+      this.ctx.fillStyle = this.drawColor;
       this.ctx.fillText("Time : ".concat(this.min, ":").concat(this.sec, ":").concat(this.milisec), canvas.width / 2, 30);
     }
   }, {
@@ -465,24 +465,25 @@ function () {
     key: "gameStart",
     value: function gameStart() {
       if (!this.start) {
-        this.start = false;
+        document.getElementById('btnControl').innerHTML = 'STOP';
         window.cancelAnimationFrame(this.anim);
         this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.keyDown();
-        this.keyUp();
-        this.mouseMove();
-        this.init();
+        this.draw();
+      } else {
+        this.start = false;
+        document.getElementById('btnControl').innerHTML = 'START';
+        window.cancelAnimationFrame(this.anim);
       }
     }
   }, {
     key: "gameOver",
     value: function gameOver() {
-      this.start = true;
+      document.getElementById('btnControl').style.display = 'none';
       window.cancelAnimationFrame(this.anim);
       this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-      this.ctx.font = '50px malgun gothic';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillStyle = '#000';
+      this.ctx.font = this.drawTitle;
+      this.ctx.textAlign = this.drawAlign;
+      this.ctx.fillStyle = this.drawColor;
       this.ctx.fillText('실력이 부족하구만~', canvas.width / 2, canvas.height / 2);
     }
   }, {
@@ -525,7 +526,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57117" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63285" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

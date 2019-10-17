@@ -26,10 +26,17 @@ class BreakOut {
   sec = 0;
   milisec = 0;
   anim;
+  statusTypeCount;
+
+  drawTitle = '50px malgun gothic';
+  drawText = '25px malgun gothic';
+  drawAlign = 'center';
+  drawColor = '#000';
 
   constructor(ctx) {
     _this = this;
     this.ctx = canvas.getContext('2d');
+    this.init();
     this.drawIntro();
 
     document.addEventListener('click', e => {
@@ -39,7 +46,6 @@ class BreakOut {
       if (actionName === 'reload') {
         this.reload();
       } else if (actionName === 'start') {
-        this.start = false;
         this.gameStart();
       }
     });
@@ -53,9 +59,19 @@ class BreakOut {
         let randomBricks = Math.floor(Math.random() * 2) + 1;
 
         this.bricks[i][k] = {x: 0, y: 0, status: randomBricks};
+
+        let statusType = _this.bricks.map(col => col.filter(block => block.status === 2));
+
+        this.statusTypeCount = 0;
+        statusType.forEach(arr => {
+          this.statusTypeCount += arr.length;
+        });
+        // console.log('개수:' + this.statusTypeCount, '뿌려진값:' + randomBricks);
       }
     }
-    this.draw();
+    this.keyDown();
+    this.keyUp();
+    this.mouseMove();
   }
   keyDown() {
     document.addEventListener('keydown', this.keyDownHandler, false);
@@ -83,11 +99,11 @@ class BreakOut {
     }
   }
   drawIntro() {
-    this.ctx.font = '50px malgun gothic';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillStyle = '#000';
+    this.ctx.font = this.drawTitle;
+    this.ctx.textAlign = this.drawAlign;
+    this.ctx.fillStyle = this.drawColor;
     this.ctx.fillText('Break Out', canvas.width / 2, canvas.height / 2 - 20);
-    this.ctx.font = '25px malgun gothic';
+    this.ctx.font = this.drawText;
     this.ctx.fillText('아래 [START] 버튼을 클릭해주세요!', canvas.width / 2, canvas.height / 2 + 20);
   }
   drawBricks() {
@@ -106,12 +122,6 @@ class BreakOut {
           this.ctx.fillStyle = '#c64e2b';
           this.ctx.fill();
         } else if (this.bricks[i][k].status === 2) {
-          let statusType = _this.bricks.map(col => col.filter(block => block.status === 2));
-          let statusTypeNum = 0;
-
-          statusType.forEach(arr => {
-            statusTypeNum += arr.length;
-          });
           this.ctx.beginPath();
           this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
           this.ctx.fillStyle = '#aa3c23';
@@ -147,6 +157,8 @@ class BreakOut {
     _this.milisec = _this.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10));
     // console.log(_this.min, _this.sec, _this.milisec);
 
+    _this.start = true;
+
     /*
       bricks 충돌감지 제어
       충동감지 어렵다.
@@ -160,31 +172,25 @@ class BreakOut {
         let brickCurrent = _this.bricks[i][k];
 
         if (brickCurrent.status === 1 || brickCurrent.status === 2) {
-          let statusNumber = brickCurrent.status === 2 ? 1 : 0;
-          let statusType = _this.bricks.map(col => col.filter(block => block.status === 2));
-          let statusTypeNum = 0;
-
-          statusType.forEach(arr => {
-            statusTypeNum += arr.length;
-          });
+          let statusNum = brickCurrent.status === 2 ? 1 : 0;
 
           if (_this.x > brickCurrent.x - _this.ballRadian && _this.x < brickCurrent.x + _this.brickWidth + _this.ballRadian && _this.y > brickCurrent.y - _this.ballRadian && _this.y < brickCurrent.y + _this.brickHeight + _this.ballRadian) {
-            brickCurrent.status = statusNumber;
+            brickCurrent.status = statusNum;
             _this.dy = -_this.dy;
             _this.score += 100;
-            // console.log(statusTypeNum);
 
-            if (_this.score === (_this.brickColCount * _this.brickRowCount) * 100) {
-              _this.start = true;
+            if (_this.score === (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100) {
+              document.getElementById('btnControl').style.display =  'none';
               _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
               _this.ctx.font = '45px malgun gothic';
-              _this.ctx.textAlign = 'center';
-              _this.ctx.fillStyle = '#000';
+              _this.ctx.textAlign = _this.drawAlign;
+              _this.ctx.fillStyle = _this.drawColor;
               _this.ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
-              _this.ctx.font = '25px malgun gothic';
+              _this.ctx.font = _this.drawText;
               _this.ctx.fillText(`${_this.min}:${_this.sec}:${_this.milisec}`, canvas.width / 2, canvas.height / 2 + 20);
               return false;
             }
+            console.log('scroe: ' + _this.score, 'total: ' + (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100);
           }
         }
       }
@@ -257,19 +263,19 @@ class BreakOut {
   drawScore() {
     this.ctx.font = '20px malgun gothic';
     this.ctx.textAlign = 'left';
-    this.ctx.fillStyle = '#000';
+    this.ctx.fillStyle = this.drawColor;
     this.ctx.fillText(`Score : ${this.score}`, this.brickOffsetLeft, 30);
   }
   drawLives() {
     this.ctx.font = '20px malgun gothic';
     this.ctx.textAlign = 'right';
-    this.ctx.fillStyle = '#000';
+    this.ctx.fillStyle = this.drawColor;
     this.ctx.fillText(`Lives : ${this.lives}`, canvas.width - this.brickOffsetLeft, 30);
   }
   drawEnd() {
     this.ctx.font = '20px malgun gothic';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillStyle = '#000';
+    this.ctx.textAlign = this.drawAlign;
+    this.ctx.fillStyle = this.drawColor;
     this.ctx.fillText(`Time : ${this.min}:${this.sec}:${this.milisec}`, canvas.width / 2, 30);
   }
   timeAddZero(num) {
@@ -277,22 +283,23 @@ class BreakOut {
   }
   gameStart() {
     if (!this.start) {
-      this.start = false;
+      document.getElementById('btnControl').innerHTML = 'STOP';
       window.cancelAnimationFrame(this.anim);
       this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-      this.keyDown();
-      this.keyUp();
-      this.mouseMove();
-      this.init();
+      this.draw();
+    } else {
+      this.start = false;
+      document.getElementById('btnControl').innerHTML = 'START';
+      window.cancelAnimationFrame(this.anim);
     }
   }
   gameOver() {
-    this.start = true;
+    document.getElementById('btnControl').style.display =  'none';
     window.cancelAnimationFrame(this.anim);
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-    this.ctx.font = '50px malgun gothic';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillStyle = '#000';
+    this.ctx.font = this.drawTitle;
+    this.ctx.textAlign = this.drawAlign;
+    this.ctx.fillStyle = this.drawColor;
     this.ctx.fillText('실력이 부족하구만~', canvas.width / 2, canvas.height / 2);
   }
   reload() {
