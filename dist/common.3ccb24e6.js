@@ -118,6 +118,8 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"common.js":[function(require,module,exports) {
+'use strict';
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -128,7 +130,7 @@ var BreakOut =
 /*#__PURE__*/
 function () {
   function BreakOut(ctx) {
-    var _this2 = this;
+    var _this = this;
 
     _classCallCheck(this, BreakOut);
 
@@ -162,7 +164,6 @@ function () {
     this.drawText = '25px malgun gothic';
     this.drawAlign = 'center';
     this.drawColor = '#000';
-    _this = this;
     this.ctx = canvas.getContext('2d');
     this.init();
     this.drawIntro();
@@ -171,9 +172,9 @@ function () {
       var actionName = !!target.dataset && target.dataset.action;
 
       if (actionName === 'reload') {
-        _this2.reload();
+        _this.reload();
       } else if (actionName === 'start') {
-        _this2.gameStart();
+        _this.gameStart();
       }
     });
   }
@@ -181,9 +182,9 @@ function () {
   _createClass(BreakOut, [{
     key: "init",
     value: function init() {
-      var _this3 = this;
+      var _this2 = this;
 
-      // bricks 기본 설정
+      // bricks 기본 설
       for (var i = 0; i < this.brickRowCount; i++) {
         this.bricks[i] = [];
 
@@ -194,16 +195,14 @@ function () {
             y: 0,
             status: randomBricks
           };
-
-          var statusType = _this.bricks.map(function (col) {
+          var statusType = this.bricks.map(function (col) {
             return col.filter(function (block) {
               return block.status === 2;
             });
           });
-
           this.statusTypeCount = 0;
           statusType.forEach(function (arr) {
-            _this3.statusTypeCount += arr.length;
+            _this2.statusTypeCount += arr.length;
           }); // console.log('개수:' + this.statusTypeCount, '뿌려진값:' + randomBricks);
         }
       }
@@ -215,36 +214,36 @@ function () {
   }, {
     key: "keyDown",
     value: function keyDown() {
-      document.addEventListener('keydown', this.keyDownHandler, false);
+      document.addEventListener('keydown', this.keyDownHandler.bind(this), false);
     }
   }, {
     key: "keyUp",
     value: function keyUp() {
-      document.addEventListener('keyup', this.keyUpHandler, false);
+      document.addEventListener('keyup', this.keyUpHandler.bind(this), false);
     }
   }, {
     key: "mouseMove",
     value: function mouseMove() {
-      document.addEventListener('mousemove', this.mouseMoveHandler, false);
+      document.addEventListener('mousemove', this.mouseMoveHandler.bind(this), false);
     }
   }, {
     key: "keyDownHandler",
     value: function keyDownHandler(e) {
       if (e.which == 37) {
-        _this.paddleLeft = true;
+        this.paddleLeft = true;
       } else if (e.which == 39) {
-        _this.paddleRight = true;
+        this.paddleRight = true;
       } else if (e.which == 107 || e.which == 43) {
-        if (_this.paddleWidth < canvas.width) _this.paddleWidth += 200;
+        if (this.paddleWidth < canvas.width) this.paddleWidth += 200;
       }
     }
   }, {
     key: "keyUpHandler",
     value: function keyUpHandler(e) {
       if (e.which == 37) {
-        _this.paddleLeft = false;
+        this.paddleLeft = false;
       } else if (e.which == 39) {
-        _this.paddleRight = false;
+        this.paddleRight = false;
       }
     }
   }, {
@@ -260,7 +259,7 @@ function () {
   }, {
     key: "drawBricks",
     value: function drawBricks() {
-      for (var i = 0; i < _this.brickRowCount; i++) {
+      for (var i = 0; i < this.brickRowCount; i++) {
         for (var k = 0; k < this.brickColCount; k++) {
           var brickX = i * (this.brickWidth + this.brickPadding) + this.brickOffsetLeft;
           var brickY = k * (this.brickHeight + this.brickPadding) + this.brickOffsetTop;
@@ -295,26 +294,19 @@ function () {
   }, {
     key: "draw",
     value: function draw() {
-      _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.drawBall();
+      this.drawPaddle();
+      this.drawBricks();
+      this.drawScore();
+      this.drawLives();
+      this.drawEnd();
+      var nowTime = new Date(Date.now() - this.startTime);
+      this.min = this.timeAddZero(nowTime.getMinutes());
+      this.sec = this.timeAddZero(nowTime.getSeconds());
+      this.milisec = this.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10)); // console.log(this.min, this.sec, this.milisec);
 
-      _this.drawBall();
-
-      _this.drawPaddle();
-
-      _this.drawBricks();
-
-      _this.drawScore();
-
-      _this.drawLives();
-
-      _this.drawEnd();
-
-      var nowTime = new Date(Date.now() - _this.startTime);
-      _this.min = _this.timeAddZero(nowTime.getMinutes());
-      _this.sec = _this.timeAddZero(nowTime.getSeconds());
-      _this.milisec = _this.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10)); // console.log(_this.min, _this.sec, _this.milisec);
-
-      _this.start = true;
+      this.start = true;
       /*
         bricks 충돌감지 제어
         충동감지 어렵다.
@@ -324,94 +316,86 @@ function () {
         공의 y 좌표는 벽돌의 y 좌표 + 높이보다 작아야 한다.
       */
 
-      for (var i = 0; i < _this.brickRowCount; i++) {
-        for (var k = 0; k < _this.brickColCount; k++) {
-          var brickCurrent = _this.bricks[i][k];
+      for (var i = 0; i < this.brickRowCount; i++) {
+        for (var k = 0; k < this.brickColCount; k++) {
+          var brickCurrent = this.bricks[i][k];
 
           if (brickCurrent.status === 1 || brickCurrent.status === 2) {
             var statusNum = brickCurrent.status === 2 ? 1 : 0;
 
-            if (_this.x > brickCurrent.x - _this.ballRadian && _this.x < brickCurrent.x + _this.brickWidth + _this.ballRadian && _this.y > brickCurrent.y - _this.ballRadian && _this.y < brickCurrent.y + _this.brickHeight + _this.ballRadian) {
+            if (this.x > brickCurrent.x - this.ballRadian && this.x < brickCurrent.x + this.brickWidth + this.ballRadian && this.y > brickCurrent.y - this.ballRadian && this.y < brickCurrent.y + this.brickHeight + this.ballRadian) {
               brickCurrent.status = statusNum;
-              _this.dy = -_this.dy;
-              _this.score += 100;
+              this.dy = -this.dy;
+              this.score += 100;
 
-              if (_this.score === (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100) {
+              if (this.score === (this.brickColCount * this.brickRowCount + this.statusTypeCount) * 100) {
                 document.getElementById('btnControl').style.display = 'none';
-
-                _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                _this.ctx.font = '45px malgun gothic';
-                _this.ctx.textAlign = _this.drawAlign;
-                _this.ctx.fillStyle = _this.drawColor;
-
-                _this.ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
-
-                _this.ctx.font = _this.drawText;
-
-                _this.ctx.fillText("".concat(_this.min, ":").concat(_this.sec, ":").concat(_this.milisec), canvas.width / 2, canvas.height / 2 + 20);
-
+                this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+                this.ctx.font = '45px malgun gothic';
+                this.ctx.textAlign = this.drawAlign;
+                this.ctx.fillStyle = this.drawColor;
+                this.ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
+                this.ctx.font = this.drawText;
+                this.ctx.fillText("".concat(this.min, ":").concat(this.sec, ":").concat(this.milisec), canvas.width / 2, canvas.height / 2 + 20);
                 return false;
               }
 
-              console.log('scroe: ' + _this.score, 'total: ' + (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100);
+              console.log('scroe: ' + this.score, 'total: ' + (this.brickColCount * this.brickRowCount + this.statusTypeCount) * 100);
             }
           }
         }
       } // Ball 좌우 제어
 
 
-      if (_this.x > canvas.width - _this.ballRadian || _this.x < _this.ballRadian) {
-        _this.dx = -_this.dx; // console.log('X 충돌!');
+      if (this.x > canvas.width - this.ballRadian || this.x < this.ballRadian) {
+        this.dx = -this.dx; // console.log('X 충돌!');
       } // Ball 상하 제어
 
 
-      if (_this.y < _this.ballRadian) {
-        _this.dy = -_this.dy; // console.log('Y 충돌!');
-      } else if (_this.y > canvas.height - _this.paddleHeight) {
-        // console.log('paddle&ball 좌표:', _this.x, _this.paddleX + _this.paddleWidth);
-        if (_this.x > _this.paddleX && _this.x < _this.paddleX + _this.paddleWidth) {
+      if (this.y < this.ballRadian) {
+        this.dy = -this.dy; // console.log('Y 충돌!');
+      } else if (this.y > canvas.height - this.paddleHeight) {
+        // console.log('paddle&ball 좌표:', this.x, this.paddleX + this.paddleWidth);
+        if (this.x > this.paddleX && this.x < this.paddleX + this.paddleWidth) {
           // console.log('야호!');
-          _this.dy = -_this.dy;
+          this.dy = -this.dy;
         } else {
-          _this.lives--;
+          this.lives--;
 
-          if (!_this.lives) {
+          if (!this.lives) {
             // console.log('GAME OVER!');
-            _this.gameOver();
-
+            this.gameOver();
             return false;
           } else {
-            _this.x = canvas.width / 2;
-            _this.y = canvas.height - _this.ballRadian;
-            _this.dx = 4;
-            _this.dy = -4;
-            _this.paddleX = (canvas.width - _this.paddleWidth) / 2;
+            this.x = canvas.width / 2;
+            this.y = canvas.height - this.ballRadian;
+            this.dx = 4;
+            this.dy = -4;
+            this.paddleX = (canvas.width - this.paddleWidth) / 2;
           }
         }
       } // Paddle Keyboard 제어
 
 
-      if (_this.paddleRight) {
-        _this.paddleX += _this.paddleCount;
+      if (this.paddleRight) {
+        this.paddleX += this.paddleCount;
 
-        if (_this.paddleX > canvas.width - _this.paddleWidth) {
-          // console.log(canvas.width - _this.paddleWidth);
-          _this.paddleX = canvas.width - _this.paddleWidth;
+        if (this.paddleX > canvas.width - this.paddleWidth) {
+          // console.log(canvas.width - this.paddleWidth);
+          this.paddleX = canvas.width - this.paddleWidth;
         }
-      } else if (_this.paddleLeft) {
-        _this.paddleX -= _this.paddleCount;
+      } else if (this.paddleLeft) {
+        this.paddleX -= this.paddleCount;
 
-        if (_this.paddleX < 0) {
-          _this.paddleX = 0;
+        if (this.paddleX < 0) {
+          this.paddleX = 0;
         }
       }
 
-      _this.x += _this.dx;
-      _this.y += _this.dy; // console.log(_this.x, _this.y);
+      this.x += this.dx;
+      this.y += this.dy; // console.log(this.x, this.y);
 
-      _this.anim = window.requestAnimationFrame(_this.draw);
-      return _this;
+      this.anim = window.requestAnimationFrame(this.draw.bind(this));
     }
   }, {
     key: "mouseMoveHandler",
@@ -419,11 +403,11 @@ function () {
       var relativeX = e.clientX - canvas.offsetLeft;
 
       if (relativeX >= 0 && relativeX <= canvas.width) {
-        _this.paddleX = relativeX - _this.paddleWidth / 2; // 마우스 커서가 캔버스 밖으로 넘어갔을 경우 (paddle 넓이 전체 보여주기)
-        // if (relativeX < _this.paddleWidth / 2) {
-        //   _this.paddleX = 0;
-        // } else if (relativeX > canvas.width - _this.paddleWidth / 2) {
-        //   _this.paddleX = canvas.width - _this.paddleWidth;
+        this.paddleX = relativeX - this.paddleWidth / 2; // 마우스 커서가 캔버스 밖으로 넘어갔을 경우 (paddle 넓이 전체 보여주기)
+        // if (relativeX < this.paddleWidth / 2) {
+        //   this.paddleX = 0;
+        // } else if (relativeX > canvas.width - this.paddleWidth / 2) {
+        //   this.paddleX = canvas.width - this.paddleWidth;
         // }
       }
     }
@@ -521,7 +505,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54055" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54413" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

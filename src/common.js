@@ -1,3 +1,5 @@
+'use strict';
+
 class BreakOut {
   start = false;
   ballRadian = 8;
@@ -27,7 +29,6 @@ class BreakOut {
   milisec = 0;
   anim;
   statusTypeCount;
-  _this;
 
   drawTitle = '50px malgun gothic';
   drawText = '25px malgun gothic';
@@ -35,7 +36,6 @@ class BreakOut {
   drawColor = '#000';
 
   constructor(ctx) {
-    _this = this;
     this.ctx = canvas.getContext('2d');
     this.init();
     this.drawIntro();
@@ -53,7 +53,7 @@ class BreakOut {
   }
 
   init() {
-    // bricks 기본 설정
+    // bricks 기본 설
     for (let i = 0; i < this.brickRowCount; i++) {
       this.bricks[i] = [];
       for (let k = 0; k < this.brickColCount; k++) {
@@ -61,7 +61,7 @@ class BreakOut {
 
         this.bricks[i][k] = {x: 0, y: 0, status: randomBricks};
 
-        let statusType = _this.bricks.map(col => col.filter(block => block.status === 2));
+        let statusType = this.bricks.map(col => col.filter(block => block.status === 2));
 
         this.statusTypeCount = 0;
         statusType.forEach(arr => {
@@ -75,28 +75,28 @@ class BreakOut {
     this.mouseMove();
   }
   keyDown() {
-    document.addEventListener('keydown', this.keyDownHandler, false);
+    document.addEventListener('keydown', this.keyDownHandler.bind(this), false);
   }
   keyUp() {
-    document.addEventListener('keyup', this.keyUpHandler, false);
+    document.addEventListener('keyup', this.keyUpHandler.bind(this), false);
   }
   mouseMove() {
-    document.addEventListener('mousemove', this.mouseMoveHandler, false);
+    document.addEventListener('mousemove', this.mouseMoveHandler.bind(this), false);
   }
   keyDownHandler(e) {
     if (e.which == 37) {
-      _this.paddleLeft = true;
+      this.paddleLeft = true;
     } else if (e.which == 39) {
-      _this.paddleRight = true;
+      this.paddleRight = true;
     } else if (e.which == 107 || e.which == 43) {
-      if (_this.paddleWidth < canvas.width) _this.paddleWidth += 200;
+      if (this.paddleWidth < canvas.width) this.paddleWidth += 200;
     }
   }
   keyUpHandler(e) {
     if (e.which == 37) {
-      _this.paddleLeft = false;
+      this.paddleLeft = false;
     } else if (e.which == 39) {
-      _this.paddleRight = false;
+      this.paddleRight = false;
     }
   }
   drawIntro() {
@@ -108,7 +108,7 @@ class BreakOut {
     this.ctx.fillText('아래 [START] 버튼을 클릭해주세요!', canvas.width / 2, canvas.height / 2 + 20);
   }
   drawBricks() {
-    for (let i = 0; i < _this.brickRowCount; i++) {
+    for (let i = 0; i < this.brickRowCount; i++) {
       for (let k = 0; k < this.brickColCount; k++) {
         let brickX = (i * (this.brickWidth + this.brickPadding)) + this.brickOffsetLeft;
         let brickY = (k * (this.brickHeight + this.brickPadding)) + this.brickOffsetTop;
@@ -139,21 +139,21 @@ class BreakOut {
     this.ctx.fill();
   }
   draw() {
-    _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-    _this.drawBall();
-    _this.drawPaddle();
-    _this.drawBricks();
-    _this.drawScore();
-    _this.drawLives();
-    _this.drawEnd();
+    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.drawBall();
+    this.drawPaddle();
+    this.drawBricks();
+    this.drawScore();
+    this.drawLives();
+    this.drawEnd();
 
-    const nowTime = new Date(Date.now() - _this.startTime);
-    _this.min = _this.timeAddZero(nowTime.getMinutes());
-    _this.sec = _this.timeAddZero(nowTime.getSeconds());
-    _this.milisec = _this.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10));
-    // console.log(_this.min, _this.sec, _this.milisec);
+    const nowTime = new Date(Date.now() - this.startTime);
+    this.min = this.timeAddZero(nowTime.getMinutes());
+    this.sec = this.timeAddZero(nowTime.getSeconds());
+    this.milisec = this.timeAddZero(Math.floor(nowTime.getMilliseconds() / 10));
+    // console.log(this.min, this.sec, this.milisec);
 
-    _this.start = true;
+    this.start = true;
 
     /*
       bricks 충돌감지 제어
@@ -163,96 +163,95 @@ class BreakOut {
       공의 y 좌표는 벽돌의 y 좌표보다 커야 한다.
       공의 y 좌표는 벽돌의 y 좌표 + 높이보다 작아야 한다.
     */
-    for (let i = 0; i < _this.brickRowCount; i++) {
-      for (let k = 0; k < _this.brickColCount; k++) {
-        let brickCurrent = _this.bricks[i][k];
+    for (let i = 0; i < this.brickRowCount; i++) {
+      for (let k = 0; k < this.brickColCount; k++) {
+        let brickCurrent = this.bricks[i][k];
 
         if (brickCurrent.status === 1 || brickCurrent.status === 2) {
           let statusNum = brickCurrent.status === 2 ? 1 : 0;
 
-          if (_this.x > brickCurrent.x - _this.ballRadian && _this.x < brickCurrent.x + _this.brickWidth + _this.ballRadian && _this.y > brickCurrent.y - _this.ballRadian && _this.y < brickCurrent.y + _this.brickHeight + _this.ballRadian) {
+          if (this.x > brickCurrent.x - this.ballRadian && this.x < brickCurrent.x + this.brickWidth + this.ballRadian && this.y > brickCurrent.y - this.ballRadian && this.y < brickCurrent.y + this.brickHeight + this.ballRadian) {
             brickCurrent.status = statusNum;
-            _this.dy = -_this.dy;
-            _this.score += 100;
+            this.dy = -this.dy;
+            this.score += 100;
 
-            if (_this.score === (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100) {
+            if (this.score === (this.brickColCount * this.brickRowCount + this.statusTypeCount) * 100) {
               document.getElementById('btnControl').style.display = 'none';
-              _this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-              _this.ctx.font = '45px malgun gothic';
-              _this.ctx.textAlign = _this.drawAlign;
-              _this.ctx.fillStyle = _this.drawColor;
-              _this.ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
-              _this.ctx.font = _this.drawText;
-              _this.ctx.fillText(`${_this.min}:${_this.sec}:${_this.milisec}`, canvas.width / 2, canvas.height / 2 + 20);
+              this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+              this.ctx.font = '45px malgun gothic';
+              this.ctx.textAlign = this.drawAlign;
+              this.ctx.fillStyle = this.drawColor;
+              this.ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
+              this.ctx.font = this.drawText;
+              this.ctx.fillText(`${this.min}:${this.sec}:${this.milisec}`, canvas.width / 2, canvas.height / 2 + 20);
               return false;
             }
-            console.log('scroe: ' + _this.score, 'total: ' + (_this.brickColCount * _this.brickRowCount + _this.statusTypeCount) * 100);
+            console.log('scroe: ' + this.score, 'total: ' + (this.brickColCount * this.brickRowCount + this.statusTypeCount) * 100);
           }
         }
       }
     }
 
     // Ball 좌우 제어
-    if (_this.x > canvas.width - _this.ballRadian || _this.x < _this.ballRadian) {
-      _this.dx = -_this.dx;
+    if (this.x > canvas.width - this.ballRadian || this.x < this.ballRadian) {
+      this.dx = -this.dx;
       // console.log('X 충돌!');
     }
 
     // Ball 상하 제어
-    if (_this.y < _this.ballRadian) {
-      _this.dy = -_this.dy;
+    if (this.y < this.ballRadian) {
+      this.dy = -this.dy;
       // console.log('Y 충돌!');
-    } else if (_this.y > canvas.height - _this.paddleHeight) {
-      // console.log('paddle&ball 좌표:', _this.x, _this.paddleX + _this.paddleWidth);
-      if (_this.x > _this.paddleX && _this.x < _this.paddleX + _this.paddleWidth) {
+    } else if (this.y > canvas.height - this.paddleHeight) {
+      // console.log('paddle&ball 좌표:', this.x, this.paddleX + this.paddleWidth);
+      if (this.x > this.paddleX && this.x < this.paddleX + this.paddleWidth) {
         // console.log('야호!');
-        _this.dy = -_this.dy;
+        this.dy = -this.dy;
       } else {
-        _this.lives--;
-        if (!_this.lives) {
+        this.lives--;
+        if (!this.lives) {
           // console.log('GAME OVER!');
-          _this.gameOver();
+          this.gameOver();
           return false;
         } else {
-          _this.x = canvas.width / 2;
-          _this.y = canvas.height - _this.ballRadian;
-          _this.dx = 4;
-          _this.dy = -4;
-          _this.paddleX = (canvas.width - _this.paddleWidth) / 2;
+          this.x = canvas.width / 2;
+          this.y = canvas.height - this.ballRadian;
+          this.dx = 4;
+          this.dy = -4;
+          this.paddleX = (canvas.width - this.paddleWidth) / 2;
         }
       }
     }
 
     // Paddle Keyboard 제어
-    if (_this.paddleRight) {
-      _this.paddleX += _this.paddleCount;
-      if (_this.paddleX > canvas.width - _this.paddleWidth) {
-        // console.log(canvas.width - _this.paddleWidth);
-        _this.paddleX = canvas.width - _this.paddleWidth;
+    if (this.paddleRight) {
+      this.paddleX += this.paddleCount;
+      if (this.paddleX > canvas.width - this.paddleWidth) {
+        // console.log(canvas.width - this.paddleWidth);
+        this.paddleX = canvas.width - this.paddleWidth;
       }
-    } else if (_this.paddleLeft) {
-      _this.paddleX -= _this.paddleCount;
-      if (_this.paddleX < 0) {
-        _this.paddleX = 0;
+    } else if (this.paddleLeft) {
+      this.paddleX -= this.paddleCount;
+      if (this.paddleX < 0) {
+        this.paddleX = 0;
       }
     }
 
-    _this.x += _this.dx;
-    _this.y += _this.dy;
-    // console.log(_this.x, _this.y);
-    _this.anim = window.requestAnimationFrame(_this.draw);
-    return _this;
+    this.x += this.dx;
+    this.y += this.dy;
+    // console.log(this.x, this.y);
+    this.anim = window.requestAnimationFrame(this.draw.bind(this));
   }
   mouseMoveHandler(e) {
     const relativeX = e.clientX - canvas.offsetLeft;
 
     if (relativeX >= 0 && relativeX <= canvas.width) {
-      _this.paddleX = relativeX - _this.paddleWidth / 2;
+      this.paddleX = relativeX - this.paddleWidth / 2;
       // 마우스 커서가 캔버스 밖으로 넘어갔을 경우 (paddle 넓이 전체 보여주기)
-      // if (relativeX < _this.paddleWidth / 2) {
-      //   _this.paddleX = 0;
-      // } else if (relativeX > canvas.width - _this.paddleWidth / 2) {
-      //   _this.paddleX = canvas.width - _this.paddleWidth;
+      // if (relativeX < this.paddleWidth / 2) {
+      //   this.paddleX = 0;
+      // } else if (relativeX > canvas.width - this.paddleWidth / 2) {
+      //   this.paddleX = canvas.width - this.paddleWidth;
       // }
     }
   }
