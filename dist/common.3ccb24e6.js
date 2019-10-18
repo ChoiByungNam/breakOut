@@ -160,10 +160,6 @@ function () {
     this.min = 0;
     this.sec = 0;
     this.milisec = 0;
-    this.drawTitle = '50px malgun gothic';
-    this.drawText = '25px malgun gothic';
-    this.drawAlign = 'center';
-    this.drawColor = '#000';
     this.ctx = canvas.getContext('2d');
     this.init();
     this.drawIntro();
@@ -247,13 +243,30 @@ function () {
       }
     }
   }, {
+    key: "cancelAnimFrame",
+    value: function cancelAnimFrame() {
+      window.cancelAnimationFrame(this.anim);
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }, {
+    key: "drawTitleUtil",
+    value: function drawTitleUtil() {
+      this.ctx.font = '50px malgun gothic';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillStyle = '#000';
+    }
+  }, {
+    key: "drawTextUtil",
+    value: function drawTextUtil() {
+      this.ctx.font = '20px malgun gothic';
+      this.ctx.fillStyle = '#000';
+    }
+  }, {
     key: "drawIntro",
     value: function drawIntro() {
-      this.ctx.font = this.drawTitle;
-      this.ctx.textAlign = this.drawAlign;
-      this.ctx.fillStyle = this.drawColor;
+      this.drawTitleUtil();
       this.ctx.fillText('Break Out', canvas.width / 2, canvas.height / 2 - 20);
-      this.ctx.font = this.drawText;
+      this.ctx.font = '25px malgun gothic';
       this.ctx.fillText('아래 [START] 버튼을 클릭해주세요!', canvas.width / 2, canvas.height / 2 + 20);
     }
   }, {
@@ -332,10 +345,10 @@ function () {
                 document.getElementById('btnControl').style.display = 'none';
                 this.ctx.clearRect(0, 0, canvas.width, canvas.height);
                 this.ctx.font = '45px malgun gothic';
-                this.ctx.textAlign = this.drawAlign;
-                this.ctx.fillStyle = this.drawColor;
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = '#000';
                 this.ctx.fillText('Final Time!', canvas.width / 2, canvas.height / 2 - 20);
-                this.ctx.font = this.drawText;
+                this.ctx.font = '25px malgun gothic';
                 this.ctx.fillText("".concat(this.min, ":").concat(this.sec, ":").concat(this.milisec), canvas.width / 2, canvas.height / 2 + 20);
                 return false;
               } // console.log('scroe: ' + this.score, 'total: ' + (this.brickColCount * this.brickRowCount + this.statusTypeCount) * 100);
@@ -413,25 +426,22 @@ function () {
   }, {
     key: "drawScore",
     value: function drawScore() {
-      this.ctx.font = '20px malgun gothic';
+      this.drawTextUtil();
       this.ctx.textAlign = 'left';
-      this.ctx.fillStyle = this.drawColor;
       this.ctx.fillText("Score : ".concat(this.score), this.brickOffsetLeft, 30);
     }
   }, {
     key: "drawLives",
     value: function drawLives() {
-      this.ctx.font = '20px malgun gothic';
+      this.drawTextUtil();
       this.ctx.textAlign = 'right';
-      this.ctx.fillStyle = this.drawColor;
       this.ctx.fillText("Lives : ".concat(this.lives), canvas.width - this.brickOffsetLeft, 30);
     }
   }, {
     key: "drawEnd",
     value: function drawEnd() {
-      this.ctx.font = '20px malgun gothic';
-      this.ctx.textAlign = this.drawAlign;
-      this.ctx.fillStyle = this.drawColor;
+      this.drawTextUtil();
+      this.ctx.textAlign = 'center';
       this.ctx.fillText("Time : ".concat(this.min, ":").concat(this.sec, ":").concat(this.milisec), canvas.width / 2, 30);
     }
   }, {
@@ -444,8 +454,7 @@ function () {
     value: function gameStart() {
       if (!this.start) {
         document.getElementById('btnControl').innerHTML = 'STOP';
-        window.cancelAnimationFrame(this.anim);
-        this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.cancelAnimFrame();
         this.draw();
       } else {
         this.start = false;
@@ -457,11 +466,8 @@ function () {
     key: "gameOver",
     value: function gameOver() {
       document.getElementById('btnControl').style.display = 'none';
-      window.cancelAnimationFrame(this.anim);
-      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-      this.ctx.font = this.drawTitle;
-      this.ctx.textAlign = this.drawAlign;
-      this.ctx.fillStyle = this.drawColor;
+      this.cancelAnimFrame();
+      this.drawTitleUtil();
       this.ctx.fillText('실력이 부족하구만~', canvas.width / 2, canvas.height / 2);
     }
   }, {
@@ -504,7 +510,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63168" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64715" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
