@@ -186,7 +186,7 @@ class BreakOut {
               this.ctx.fillText(`${this.min}:${this.sec}:${this.milisec}`, canvas.width / 2, canvas.height / 2 + 20);
               return false;
             }
-            console.log('scroe: ' + this.score, 'total: ' + (this.brickColCount * this.brickRowCount + this.statusTypeCount) * 100);
+            // console.log('scroe: ' + this.score, 'total: ' + (this.brickColCount * this.brickRowCount + this.statusTypeCount) * 100);
           }
         }
       }
